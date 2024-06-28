@@ -1,6 +1,7 @@
 package JogadorFrame;
 
 import ClienteService.ClienteService;
+import Desenho.PaintContainer;
 import Mensagem.Mensagem;
 
 import javax.swing.*;
@@ -20,6 +21,7 @@ public class JogadorFrame extends JFrame {
     private JTextField txtFieldReceber;
     private JPanel principal;
     private JTextPane txtFieldNomeJogador;
+    private PaintContainer paintContainer;
 
     private Mensagem mensagem;
     private Socket socket;
@@ -28,6 +30,10 @@ public class JogadorFrame extends JFrame {
     private int porta = 5050;
     private String host = "localhost";
     private String nomeUsuario;
+
+    private void createUIComponents() {
+        this.paintContainer = new PaintContainer();
+    }
 
     public JFrame rodar() {
         JFrame frame = new JFrame("JogadorFrame");

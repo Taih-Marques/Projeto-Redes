@@ -32,7 +32,7 @@ public class Paint extends JPanel{
 	private Forma f;
 	private CurvaLivre cL;
 	
-	public Paint(JLabel statusLabel) throws IOException {
+	public Paint(JLabel statusLabel) {
 		
 		setTipoForma(tiposFormas.LINHA);
 		setBackground(Color.white);
