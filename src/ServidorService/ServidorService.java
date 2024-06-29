@@ -115,16 +115,6 @@ public class ServidorService {
     }
 
     private void disconectar(Mensagem mensagem, ObjectOutputStream output) {
-
-
-        if(this.desenhistaId != null && this.desenhistaId.equals(mensagem.getId())){
-
-            System.out.println("Desenhista saiu\n");
-            this.desenhistaId = null;
-            this.desenhista = null;
-        }
-
-
         Mensagem novaMensagem = new Mensagem();
 
         novaMensagem.setAcao(Mensagem.Acao.DESCONECTAR); //confirma a desconexão
@@ -133,6 +123,14 @@ public class ServidorService {
 
         novaMensagem.setConteudo("Você foi desconectado\n");
         sendMenssage(novaMensagem, output); //envia a desconexão
+
+        if(this.desenhistaId != null && this.desenhistaId.equals(mensagem.getId())){
+
+            System.out.println("Desenhista saiu\n");
+            this.desenhistaId = null;
+            this.desenhista = null;
+            selecionarDesenhista(mensagem.getId());
+        }
 
     }
 
@@ -147,7 +145,6 @@ public class ServidorService {
             sendMenssage(mensagem, ouput);
         }
         /**/else{
-
 
             System.out.printf("Jogador %s no lobby\n",mensagem.getId());
             lobby.put(mensagem.getId(), ouput); //adiciona o jogador no lobby
@@ -210,6 +207,14 @@ public class ServidorService {
             }
 
 
+        }
+        else{
+            var mensagem= new Mensagem();
+
+            System.out.printf("Jogador %s no lobby\n",mensagem.getId());
+            mensagem.setAcao(Mensagem.Acao.CONECTAR);
+            mensagem.setConteudo("Esperando mais jogadores!\n");
+            // sendMenssage(mensagem,ouput);
         }
     }
 

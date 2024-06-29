@@ -20,9 +20,9 @@ public class PaintContainer extends JPanel {
 	private final JButton desfazer, refazer, limpar;
 	private final JPanel painelSuperior;
 
-	private final String[] coresDisponiveis = {"preto", "vermelho", "azul", "laranja"};
+	private final String[] coresDisponiveis = {"preto", "vermelho", "azul", "laranja", "branco", "verde", "rosa", "amarelo"};
 	private final String[] formasDisponiveis = {"reta", "retangulo", "elipse", "pincel quadrado", "pincel redondo"};
-	private final Color[] cores = {Color.black, Color.red, Color.blue, Color.orange};
+	private final Color[] cores = {Color.black, Color.red, Color.blue, Color.orange, Color.white, Color.GREEN, Color.pink, Color.yellow};
 	private final Paint.tiposFormas[] tiposFormas = {Paint.tiposFormas.LINHA, Paint.tiposFormas.RETANGULO, Paint.tiposFormas.ELIPSE, Paint.tiposFormas.CURVA_LIVRE_QUADRADO, Paint.tiposFormas.CURVA_LIVRE_REDONDO};
 	private final JComboBox<String> coresMenu, coresPreenchimentoMenu, formas;
 	private final JRadioButton removerPreenchimento;
