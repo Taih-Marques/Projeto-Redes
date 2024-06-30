@@ -338,6 +338,8 @@ public class JogadorFrame extends JFrame {
         btnSair.setEnabled(false);
         txtFieldNomeJogador.setEnabled(true);
 
+        ativarDesenho(false);
+
 
     }
 
@@ -361,6 +363,9 @@ public class JogadorFrame extends JFrame {
             comboCoresContorno.setEnabled(true);
             comboCoresPreenchimento.setEnabled(true);
             radioPreenchimento.setEnabled(true);
+            botaoDesfazer.setEnabled(true);
+            botaoLimpar.setEnabled(true);
+            botaoRefazer.setEnabled(true);
         }
         else {
             this.paint.removeMouseListener(mouseInput);
@@ -370,6 +375,9 @@ public class JogadorFrame extends JFrame {
             comboCoresContorno.setEnabled(false);
             comboCoresPreenchimento.setEnabled(false);
             radioPreenchimento.setEnabled(false);
+            botaoDesfazer.setEnabled(false);
+            botaoLimpar.setEnabled(false);
+            botaoRefazer.setEnabled(false);
         }
     }
 }
