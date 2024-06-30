@@ -1,7 +1,6 @@
 package JogadorFrame;
 
 import ClienteService.ClienteService;
-import Desenho.Desenhavel;
 import Desenho.Paint;
 import Desenho.PaintContainer;
 import Mensagem.Mensagem;
@@ -156,6 +155,8 @@ public class JogadorFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 paint.limparUltimaForma();
+
+                enviarDesenho();
             }
         });
         botaoRefazer.addActionListener(new ActionListener() {
@@ -163,6 +164,8 @@ public class JogadorFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 paint.refazer();
+
+                enviarDesenho();
             }
         });
         botaoLimpar.addActionListener(new ActionListener() {
@@ -170,6 +173,8 @@ public class JogadorFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 paint.limparTudo();
+
+                enviarDesenho();
             }
         });
     }
@@ -233,8 +238,6 @@ public class JogadorFrame extends JFrame {
                         //(ArrayList<Desenhavel>) Arrays.asList(mensagem.getDesenhavel())
                         paint.setFormasDesenhadas(new ArrayList<>(Arrays.asList(mensagem.getDesenhavel())));
 
-                        paint.getFormasDesenhadas().forEach(System.out::println);
-
                         paint.repaint();
                     }
 
@@ -286,20 +289,7 @@ public class JogadorFrame extends JFrame {
         public void mouseReleased(MouseEvent e) {
             paint.finalizarDesenho(e);
 
-            Mensagem mensagem = new Mensagem();
-
-            mensagem.setAcao(Mensagem.Acao.DESENHO);
-            mensagem.setId(nomeUsuario);
-            mensagem.setDesenhavel(paint.getFormasDesenhadas());
-
-            /*
-            for(Desenhavel d : paint.getFormasDesenhadas()){
-
-                System.out.println("O que desenhei: "+d);
-            }*/
-
-            service.send(mensagem);
-
+            enviarDesenho();
 
 
         }
@@ -313,6 +303,16 @@ public class JogadorFrame extends JFrame {
             paint.tracarCurva(e);
 
         }
+    }
+
+    private void enviarDesenho() {
+        Mensagem mensagem = new Mensagem();
+
+        mensagem.setAcao(Mensagem.Acao.DESENHO);
+        mensagem.setId(nomeUsuario);
+        mensagem.setDesenhavel(paint.getFormasDesenhadas());
+
+        service.send(mensagem);
     }
 
     private void advinhando(Mensagem mensagem) {
@@ -338,6 +338,8 @@ public class JogadorFrame extends JFrame {
         btnSair.setEnabled(false);
         txtFieldNomeJogador.setEnabled(true);
 
+        ativarDesenho(false);
+
 
     }
 
@@ -361,6 +363,12 @@ public class JogadorFrame extends JFrame {
             comboCoresContorno.setEnabled(true);
             comboCoresPreenchimento.setEnabled(true);
             radioPreenchimento.setEnabled(true);
+            botaoDesfazer.setEnabled(true);
+            botaoLimpar.setEnabled(true);
+            botaoRefazer.setEnabled(true);
+
+            btnEnviar.setEnabled(false);
+            txtFieldEnviarMsg.setEnabled(false);
         }
         else {
             this.paint.removeMouseListener(mouseInput);
@@ -370,6 +378,12 @@ public class JogadorFrame extends JFrame {
             comboCoresContorno.setEnabled(false);
             comboCoresPreenchimento.setEnabled(false);
             radioPreenchimento.setEnabled(false);
+            botaoDesfazer.setEnabled(false);
+            botaoLimpar.setEnabled(false);
+            botaoRefazer.setEnabled(false);
+
+            txtFieldEnviarMsg.setEnabled(true);
+            btnEnviar.setEnabled(true);
         }
     }
 }

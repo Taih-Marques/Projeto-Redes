@@ -23,7 +23,7 @@ public class Paint extends JPanel{
 	private tiposFormas tipoForma; //tipo de forma desenhada
 	private Color corAtual; //cor atual da forma
 	private Color preenchido; //a forma é preenchida?
-	private int quantasFormas; //quantas formas devem ser exibidas
+	private int quantasFormas = -1; //quantas formas devem ser exibidas
 	private Desenhavel formaAtual; //desenho sendo feito atualmente
 	
 	private JLabel statusLabel; //exibe as coordenadas do mouse
@@ -97,6 +97,9 @@ public class Paint extends JPanel{
 	 * @param d figura para adicionar
 	 */
 	public void addAosDesenhados(Desenhavel d) {
+
+		if(quantasFormas < 0) quantasFormas = 0;
+
 		formasDesenhadas.add(quantasFormas++, d);
 	}
 	
@@ -122,7 +125,9 @@ public class Paint extends JPanel{
 	 * A função simplismente incrementa o ponteiro para o topo
 	 */
 	public void refazer() {
-		
+
+		if(quantasFormas < 0) quantasFormas = 0;
+
 		++quantasFormas;
 		if(quantasFormas > formasDesenhadas.size()) {
 			quantasFormas = formasDesenhadas.size();
@@ -133,7 +138,9 @@ public class Paint extends JPanel{
 
 	public ArrayList<Desenhavel> getFormasDesenhadas(){
 
-		return this.formasDesenhadas;
+		if(quantasFormas < 0) return null;
+
+		return new ArrayList<Desenhavel>(this.formasDesenhadas.subList(0, quantasFormas));
 	}
 
 	public void setFormasDesenhadas(ArrayList<Desenhavel> desenhadas){
