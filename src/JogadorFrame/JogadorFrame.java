@@ -1,19 +1,23 @@
 package JogadorFrame;
 
 import ClienteService.ClienteService;
+import Desenho.Desenhavel;
+import Desenho.Paint;
 import Desenho.PaintContainer;
 import Mensagem.Mensagem;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class JogadorFrame extends JFrame {
-    private JPanel barraSuperior;
     private JPanel barraInferior;
+    private JPanel barraSuperior;
     private JButton btnConectar;
     private JButton btnSair;
     private JTextField txtFieldEnviarMsg;
@@ -21,18 +25,37 @@ public class JogadorFrame extends JFrame {
     private JTextField txtFieldReceber;
     private JPanel principal;
     private JTextPane txtFieldNomeJogador;
+    private Paint paint;
+    private JPanel BarraDeDesenho;
+    private JComboBox comboFormasDisponveis;
+    private JLabel labelFormas;
+    private JLabel labelCorContorno;
+    private JComboBox comboCoresContorno;
+    private JComboBox comboCoresPreenchimento;
+    private JRadioButton radioPreenchimento;
+    private JButton botaoRefazer;
+    private JButton botaoDesfazer;
+    private JButton botaoLimpar;
     private PaintContainer paintContainer;
 
     private Mensagem mensagem;
     private Socket socket;
     private ClienteService service;
 
+    private final Color[] cores = {Color.black, Color.red, Color.blue, Color.orange, Color.white, Color.GREEN, Color.pink, Color.yellow};
+    private final Paint.tiposFormas[] tiposFormas = {Paint.tiposFormas.LINHA, Paint.tiposFormas.RETANGULO, Paint.tiposFormas.ELIPSE, Paint.tiposFormas.CURVA_LIVRE_QUADRADO, Paint.tiposFormas.CURVA_LIVRE_REDONDO};
+    private boolean preencher = false;
+
     private int porta = 5050;
     private String host = "localhost";
     private String nomeUsuario;
+    private Mensagem.Acao papel;
+
+    private final MouseInput mouseInput;
 
     private void createUIComponents() {
-        this.paintContainer = new PaintContainer();
+       this.paint = new Paint(new JLabel());
+       this.paint.setPreferredSize(new Dimension(1280, 600));
     }
 
     public JFrame rodar() {
@@ -45,8 +68,6 @@ public class JogadorFrame extends JFrame {
     }
 
     public JogadorFrame() {
-
-
 
         btnConectar.addActionListener(new ActionListener() {
             @Override
@@ -86,6 +107,69 @@ public class JogadorFrame extends JFrame {
                 service.send(mensagem);//envia a solicitação
 
 
+            }
+        });
+
+        this.mouseInput = new MouseInput();
+
+        comboFormasDisponveis.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+                if(e.getStateChange() == ItemEvent.SELECTED){
+
+                    paint.setTipoForma(tiposFormas[comboFormasDisponveis.getSelectedIndex()]);
+                }
+            }
+        });
+        comboCoresContorno.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+                paint.setCorAtual(cores[comboCoresContorno.getSelectedIndex()]);
+            }
+        });
+        comboCoresPreenchimento.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+                if(e.getStateChange() == ItemEvent.SELECTED && preencher){
+                    paint.setPreenchimento(cores[comboCoresPreenchimento.getSelectedIndex()]);
+                }
+
+            }
+        });
+        radioPreenchimento.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+                preencher =! preencher;
+
+                paint.setPreenchimento(null);
+                if(preencher){
+                    paint.setPreenchimento(cores[comboCoresPreenchimento.getSelectedIndex()]);
+                }
+            }
+        });
+        botaoDesfazer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                paint.limparUltimaForma();
+            }
+        });
+        botaoRefazer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                paint.refazer();
+            }
+        });
+        botaoLimpar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                paint.limparTudo();
             }
         });
     }
@@ -142,6 +226,18 @@ public class JogadorFrame extends JFrame {
                         advinhando(mensagem);
                     }
 
+                    else if(acao == Mensagem.Acao.DESENHO){
+
+                      //  mensagem.getDesenhavel().forEach(System.out::println);
+
+                        //(ArrayList<Desenhavel>) Arrays.asList(mensagem.getDesenhavel())
+                        paint.setFormasDesenhadas(new ArrayList<>(Arrays.asList(mensagem.getDesenhavel())));
+
+                        paint.getFormasDesenhadas().forEach(System.out::println);
+
+                        paint.repaint();
+                    }
+
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -153,14 +249,86 @@ public class JogadorFrame extends JFrame {
         }
     }
 
+    public class MouseInput extends MouseAdapter implements MouseMotionListener {
+
+        /**
+         * exibe as coordenadas do mouse conforme ele se move
+         */
+        @Override
+        public void mouseMoved(MouseEvent e) {
+
+            paint.setStatusLabel(e.getX(), e.getY());
+
+        }
+
+        /**
+         * deixa de exibir as coordenadas quando o mouse sai da tela
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+            paint.esconderStatus();
+        }
+
+        /**
+         * quando um dos botões do mouse é pressionado, começa a criar a figura selecionada
+         */
+        @Override
+        public void mousePressed(MouseEvent e) {
+            paint.inicializarDesenho(e);
+
+        }
+
+        /**
+         * quando um botão do mouse é solto, a figura que começou a ser criada é de fato desenhada na tela
+         * e adicionada ao array
+         */
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            paint.finalizarDesenho(e);
+
+            Mensagem mensagem = new Mensagem();
+
+            mensagem.setAcao(Mensagem.Acao.DESENHO);
+            mensagem.setId(nomeUsuario);
+            mensagem.setDesenhavel(paint.getFormasDesenhadas());
+
+            /*
+            for(Desenhavel d : paint.getFormasDesenhadas()){
+
+                System.out.println("O que desenhei: "+d);
+            }*/
+
+            service.send(mensagem);
+
+
+
+        }
+
+        /**
+         * Desenha a figura na tela conforme ela é feita
+         * A figura não é adicionada ao array, apenas quando o usuário termina (soltando o botão do mouse)
+         */
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            paint.tracarCurva(e);
+
+        }
+    }
+
     private void advinhando(Mensagem mensagem) {
 
         this.txtFieldReceber.setText(mensagem.getConteudo());
+
+        ativarDesenho(false);
+
     }
 
     private void desenhando(Mensagem mensagem) {
 
         this.txtFieldReceber.setText(mensagem.getConteudo());
+
+        ativarDesenho(true);
+
     }
 
     private void disconectado(Mensagem mensagem) {
@@ -180,5 +348,28 @@ public class JogadorFrame extends JFrame {
             txtFieldNomeJogador.setEnabled(false);
             txtFieldReceber.setText(mensagem.getConteudo());
 
+    }
+
+    private void ativarDesenho(Boolean ativar){
+
+        if(ativar){
+
+            this.paint.addMouseListener(mouseInput);
+            this.paint.addMouseMotionListener(mouseInput);
+
+            comboFormasDisponveis.setEnabled(true);
+            comboCoresContorno.setEnabled(true);
+            comboCoresPreenchimento.setEnabled(true);
+            radioPreenchimento.setEnabled(true);
+        }
+        else {
+            this.paint.removeMouseListener(mouseInput);
+            this.paint.removeMouseMotionListener(mouseInput);
+
+            comboFormasDisponveis.setEnabled(false);
+            comboCoresContorno.setEnabled(false);
+            comboCoresPreenchimento.setEnabled(false);
+            radioPreenchimento.setEnabled(false);
+        }
     }
 }

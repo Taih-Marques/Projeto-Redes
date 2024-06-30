@@ -4,19 +4,37 @@ import Desenho.Desenhavel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Mensagem implements Serializable {
 
     private String conteudo;
     private Acao acao;
     private String id;
-    private ArrayList<Desenhavel> formasDesenhadas;
+    private  Desenhavel[] formasDesenhadas;
 
     public Mensagem(){
 
 
-        this.formasDesenhadas = new ArrayList<>();
+      //  this.formasDesenhadas = new ArrayList<>();
 
+    }
+
+    public void setDesenhavel(List desenhavel){
+
+        this.formasDesenhadas = new Desenhavel[desenhavel.size()];
+
+        desenhavel.toArray(this.formasDesenhadas);
+    }
+
+    public  void setDesenhavel(Desenhavel [] desenhavel){
+
+        this.formasDesenhadas = desenhavel;
+    }
+
+    public Desenhavel[] getDesenhavel(){
+
+        return  this.formasDesenhadas;
     }
 
     public void setConteudo(String conteudo){

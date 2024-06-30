@@ -1,5 +1,6 @@
 package ServidorService;
 
+import Desenho.Desenhavel;
 import Mensagem.Mensagem;
 
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -89,10 +91,23 @@ public class ServidorService {
 
                         System.out.printf("Jogador %s desconectado\n",mensagem.getId());
                         disconectar(mensagem, output);
-
-
-
                         break;
+
+                    } else if (acao == Mensagem.Acao.DESENHO && mensagem.getId().equals(desenhistaId)) {
+
+                        Mensagem doDesenhista = new Mensagem();
+
+                        doDesenhista.setId(mensagem.getId());
+                        doDesenhista.setAcao(Mensagem.Acao.DESENHO);
+                        doDesenhista.setDesenhavel(mensagem.getDesenhavel());
+
+                        /*
+                        for(Desenhavel d : mensagem.getDesenhavel()){
+
+                            System.out.println("O que recebi: "+d);
+                        }*/
+
+                        jogadoresAdvinham.values().forEach(jogador -> sendMenssage(doDesenhista, jogador));
 
                     }
 
@@ -107,8 +122,8 @@ public class ServidorService {
             }
             catch (IOException e){
 
-                System.out.println("Jogador Encerrou inesperadamente\n");
-                 //e.printStackTrace();
+               // System.out.println("Jogador Encerrou inesperadamente\n");
+                 e.printStackTrace();
             }
         }
 

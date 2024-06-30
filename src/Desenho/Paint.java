@@ -1,12 +1,11 @@
 package Desenho;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.io.IOException;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import  java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -39,9 +38,9 @@ public class Paint extends JPanel{
 		corAtual = Color.black;
 		preenchido = null;
 		
-		addMouseListener(new MouseInput());
-		addMouseMotionListener(new MouseInput());
-		
+	//	addMouseListener(mouseInput);
+	//	addMouseMotionListener(mouseInput);
+		//, MouseAdapter mouseInput
 		this.statusLabel = statusLabel;
 		
 	}
@@ -136,7 +135,14 @@ public class Paint extends JPanel{
 
 		return this.formasDesenhadas;
 	}
-	
+
+	public void setFormasDesenhadas(ArrayList<Desenhavel> desenhadas){
+
+		this.formasDesenhadas = desenhadas;
+		quantasFormas = this.formasDesenhadas.size();
+
+	}
+
 	/**
 	 * pinta todos os desenhos na tela
 	 */
@@ -144,7 +150,7 @@ public class Paint extends JPanel{
 	public void paintComponent(Graphics g) {
 		
 		super.paintComponent(g);
-		
+
 
 		for(int a = 0; a < quantasFormas; ++a) {
 			formasDesenhadas.get(a).draw(g);
@@ -164,123 +170,78 @@ public class Paint extends JPanel{
 	 * lida com a entrada do mouse
 	 *
 	 */
-	public class MouseInput extends MouseAdapter implements MouseMotionListener{
-		
-		/**
-		 * exibe as coordenadas do mouse conforme ele se move
-		 */
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			
-			setStatusLabel(e.getX(), e.getY());
+
+
+	public void inicializarDesenho(MouseEvent e) {
+		tiposFormas tipo = getTipoForma();//pega qual figura foi selecionada
+		switch(tipo) {
+
+		case LINHA:
+
+			f = new Linha();
+			f.setxInicial(e.getX());
+			f.setyInicial(e.getY());
+			f.setCor(corAtual);
+
+			break;
+		case RETANGULO:
+			f = new Retangulo(e.getX(), e.getY(), 0, 0, corAtual, preenchido);
+
+			break;
+		case ELIPSE:
+			f = new Ellipse(e.getX(), e.getY(), 0, 0, corAtual, preenchido);
+
+			break;
+		case CURVA_LIVRE_QUADRADO:
+			cL = new PincelQuadrado(corAtual, 4);
+			cL.addPonto(e.getPoint());
+
+
+			break;
+		case CURVA_LIVRE_REDONDO:
+			cL = new PincelRedondo(corAtual, 4);
+			cL.addPonto(e.getPoint());
+
+			break;
+
 		}
-		
-		/**
-		 * deixa de exibir as coordenadas quando o mouse sai da tela
-		 */
-		@Override
-		public void mouseExited(MouseEvent e) {
-			esconderStatus();
+	}
+
+	public void finalizarDesenho(MouseEvent e) {
+		tiposFormas tipo = getTipoForma();
+		if(tipo == tiposFormas.CURVA_LIVRE_QUADRADO || tipo == tiposFormas.CURVA_LIVRE_REDONDO)
+		{
+
+			addAosDesenhados(cL);
+			repaint();
 		}
-		
-		/**
-		 * quando um dos botões do mouse é pressionado, começa a criar a figura selecionada
-		 */
-		@Override
-		public void mousePressed(MouseEvent e) {
-			tiposFormas tipo = getTipoForma();//pega qual figura foi selecionada
-			switch(tipo) {
-			
-			case LINHA:
-				
-				f = new Linha();
-				f.setxInicial(e.getX());
-				f.setyInicial(e.getY());
-				f.setCor(corAtual);
-				
-				break;
-			case RETANGULO:
-				f = new Retangulo(e.getX(), e.getY(), 0, 0, corAtual, preenchido);
-				
-				break;
-			case ELIPSE:
-				f = new Ellipse(e.getX(), e.getY(), 0, 0, corAtual, preenchido);
-				
-				break;
-			case CURVA_LIVRE_QUADRADO:
-				cL = new PincelQuadrado(corAtual, 4);
-				cL.addPonto(e.getPoint());
-				
-				
-				break;
-			case CURVA_LIVRE_REDONDO:
-				cL = new PincelRedondo(corAtual, 4);
-				cL.addPonto(e.getPoint());
-				
-				break;
-				
-			}
-			
+		else {
+			f.setxFinal(e.getX());
+			f.setyFinal(e.getY());
+			addAosDesenhados(f);
+
 		}
-		
-		/**
-		 * quando um botão do mouse é solto, a figura que começou a ser criada é de fato desenhada na tela
-		 * e adicionada ao array
-		 */
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			tiposFormas tipo = getTipoForma();
-			if(tipo == tiposFormas.CURVA_LIVRE_QUADRADO || tipo == tiposFormas.CURVA_LIVRE_REDONDO)
-			{
-				//formasDesenhadas.add(cL);
-				addAosDesenhados(cL);
-				if(tipo == tiposFormas.CURVA_LIVRE_QUADRADO){
-
-					//formasOutput.add()
-					PincelQuadrado p = new  PincelQuadrado();
-					//Point t = new Point();
-
-				//	t.setLocation(cL.getPontos().get(cL.getTamanho()-1).getX(), cL.getPontos().get(cL.getTamanho()-1).getY());
-
-//					System.out.println(cL);
-
-                }
-				repaint();
-			}
-			else {
-				f.setxFinal(e.getX());
-				f.setyFinal(e.getY());
-				addAosDesenhados(f);
-
-			}
 
 
-			formaAtual = null;
+		formaAtual = null;
+	}
 
-			
+	public Desenhavel tracarCurva(MouseEvent e) {
+		tiposFormas tipo = getTipoForma();
+		setStatusLabel(e.getX(), e.getY());
+		if(tipo == tiposFormas.CURVA_LIVRE_QUADRADO || tipo == tiposFormas.CURVA_LIVRE_REDONDO)
+		{
+			cL.addPonto(e.getPoint());
+			formaAtual = cL;
 		}
-		
-		/**
-		 * Desenha a figura na tela conforme ela é feita
-		 * A figura não é adicionada ao array, apenas quando o usuário termina (soltando o botão do mouse)
-		 */
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			tiposFormas tipo = getTipoForma();
-			setStatusLabel(e.getX(), e.getY());
-			if(tipo == tiposFormas.CURVA_LIVRE_QUADRADO || tipo == tiposFormas.CURVA_LIVRE_REDONDO)
-			{
-				cL.addPonto(e.getPoint());
-				formaAtual = cL;
-			}
-			else {
-				
-				f.setxFinal(e.getX());
-				f.setyFinal(e.getY());
-				formaAtual = f;
-			}
-            repaint();
-			
+		else {
+
+			f.setxFinal(e.getX());
+			f.setyFinal(e.getY());
+			formaAtual = f;
 		}
-}
+		repaint();
+
+		return formaAtual;
+	}
 }
