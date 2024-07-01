@@ -71,8 +71,8 @@ public class Mensagem implements Serializable {
 
         DESENHO,
         CHUTE,
-        ACERTO,
-        ERRO,
+        GANHOU,
+        PERDEU,
         CONECTAR,
         RECUSADO,
         DESCONECTAR,

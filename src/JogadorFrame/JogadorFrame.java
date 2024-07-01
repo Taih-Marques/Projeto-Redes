@@ -201,6 +201,8 @@ public class JogadorFrame extends JFrame {
 
                     service.send(msg);
 
+                    txtFieldEnviarMsg.setText("");
+
 
                 }
 
@@ -278,6 +280,26 @@ public class JogadorFrame extends JFrame {
 
                         System.out.println("chute: "+mensagem.getConteudo());
 
+                    }
+                    else{
+
+                        if (acao == Mensagem.Acao.GANHOU) {
+
+                            txtAreaChutes.append(String.format("%s acertou! A resposta era %s\n", mensagem.getId(), mensagem.getConteudo()));
+                            JOptionPane.showMessageDialog(JogadorFrame.this, "Parabéns, você venceu!");
+
+                        } else if (acao == Mensagem.Acao.PERDEU) {
+
+                            txtAreaChutes.append(String.format("%s acertou! A resposta era %s\n", mensagem.getId(), mensagem.getConteudo()));
+                            JOptionPane.showMessageDialog(JogadorFrame.this, "Ops, não foi dessa vez");
+                        }
+
+
+                        mensagem = new Mensagem();
+                        System.out.println("Solicitando desconexão");
+                        mensagem.setAcao(Mensagem.Acao.DESCONECTAR); //solicita a desconexão com o servidor;
+                        mensagem.setId(nomeUsuario);
+                        service.send(mensagem);//envia a solicitação
                     }
 
 
@@ -377,7 +399,7 @@ public class JogadorFrame extends JFrame {
         btnSair.setEnabled(false);
         txtFieldNomeJogador.setEnabled(true);
 
-        ativarDesenho(false);
+        desativarEntradas();
 
 
     }
@@ -388,6 +410,33 @@ public class JogadorFrame extends JFrame {
             btnSair.setEnabled(true);
             txtFieldNomeJogador.setEnabled(false);
             txtFieldReceber.setText(mensagem.getConteudo());
+
+    }
+
+    private  void  desativarEntradas(){
+
+        this.paint.removeMouseListener(mouseInput);
+        this.paint.removeMouseMotionListener(mouseInput);
+
+        comboFormasDisponveis.setEnabled(false);
+        comboCoresContorno.setEnabled(false);
+        comboCoresPreenchimento.setEnabled(false);
+        radioPreenchimento.setEnabled(false);
+        botaoDesfazer.setEnabled(false);
+        botaoLimpar.setEnabled(false);
+        botaoRefazer.setEnabled(false);
+
+        txtFieldEnviarMsg.setEnabled(false);
+        txtFieldEnviarMsg.setEditable(false);
+        btnEnviar.setEnabled(false);
+
+        comboFormasDisponveis.setEnabled(false);
+        comboCoresContorno.setEnabled(false);
+        comboCoresPreenchimento.setEnabled(false);
+        radioPreenchimento.setEnabled(false);
+        botaoDesfazer.setEnabled(false);
+        botaoLimpar.setEnabled(false);
+        botaoRefazer.setEnabled(false);
 
     }
 
