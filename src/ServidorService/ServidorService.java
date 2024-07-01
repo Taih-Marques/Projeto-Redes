@@ -109,6 +109,20 @@ public class ServidorService {
 
                         jogadoresAdvinham.values().forEach(jogador -> sendMenssage(doDesenhista, jogador));
 
+                    } else if (acao == Mensagem.Acao.CHUTE) {
+
+                        Mensagem doAdivinhador = new Mensagem();
+
+                        /*System.out.println("Chute de "+mensagem.getConteudo());
+                        System.out.printf("Chute de %s, desenhista %s\n",mensagem.getId(), desenhistaId);*/
+
+                        doAdivinhador.setId(mensagem.getId()); //id do adivinhador
+                        doAdivinhador.setAcao(Mensagem.Acao.CHUTE);
+                        doAdivinhador.setConteudo(mensagem.getConteudo());
+
+                        jogadoresAdvinham.values().forEach(jogador -> sendMenssage(doAdivinhador, jogador));
+                        sendMenssage(doAdivinhador, desenhista);
+
                     }
 
 

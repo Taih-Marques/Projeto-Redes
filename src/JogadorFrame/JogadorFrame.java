@@ -35,6 +35,7 @@ public class JogadorFrame extends JFrame {
     private JButton botaoRefazer;
     private JButton botaoDesfazer;
     private JButton botaoLimpar;
+    private JTextArea txtAreaChutes;
     private PaintContainer paintContainer;
 
     private Mensagem mensagem;
@@ -43,7 +44,7 @@ public class JogadorFrame extends JFrame {
 
     private final Color[] cores = {Color.black, Color.red, Color.blue, Color.orange, Color.white, Color.GREEN, Color.pink, Color.yellow};
     private final Paint.tiposFormas[] tiposFormas = {Paint.tiposFormas.LINHA, Paint.tiposFormas.RETANGULO, Paint.tiposFormas.ELIPSE, Paint.tiposFormas.CURVA_LIVRE_QUADRADO, Paint.tiposFormas.CURVA_LIVRE_REDONDO};
-    private boolean preencher = false;
+    private boolean preencher = true;
 
     private int porta = 5050;
     private String host = "localhost";
@@ -91,6 +92,10 @@ public class JogadorFrame extends JFrame {
 
                     System.out.println("Solicitando conexão");
                     service.send(mensagem);
+                }
+                else{
+
+                    JOptionPane.showMessageDialog(JogadorFrame.this,"Por favor, digite um nome!");
                 }
 
             }
@@ -177,6 +182,30 @@ public class JogadorFrame extends JFrame {
                 enviarDesenho();
             }
         });
+
+        btnEnviar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String chute = txtFieldEnviarMsg.getText();
+
+                if(!chute.isBlank()){
+
+                    System.out.println(chute);
+
+                    Mensagem msg = new Mensagem();
+
+                    msg.setAcao(Mensagem.Acao.CHUTE);
+                    msg.setId(JogadorFrame.this.nomeUsuario);
+                    msg.setConteudo(chute);
+
+                    service.send(msg);
+
+
+                }
+
+            }
+        });
     }
 
     private class ListenerSocket implements Runnable {
@@ -223,11 +252,13 @@ public class JogadorFrame extends JFrame {
                     } else if (acao == Mensagem.Acao.ROLE_DESENHISTA) {
 
                         System.out.println("Jogo iniciado");
+                        JogadorFrame.this.papel = acao;
                         desenhando(mensagem);
                     }
                     else if (acao == Mensagem.Acao.ROLE_ADIVINHADOR){
 
                         System.out.println("Jogo iniciado");
+                        JogadorFrame.this.papel = acao;
                         advinhando(mensagem);
                     }
 
@@ -239,6 +270,14 @@ public class JogadorFrame extends JFrame {
                         paint.setFormasDesenhadas(new ArrayList<>(Arrays.asList(mensagem.getDesenhavel())));
 
                         paint.repaint();
+                    } else if (acao == Mensagem.Acao.CHUTE) {
+
+                        //txtFieldReceber.setText(mensagem.getConteudo());
+
+                        txtAreaChutes.append(String.format("%s chutou: %s\n", mensagem.getId(), mensagem.getConteudo()));
+
+                        System.out.println("chute: "+mensagem.getConteudo());
+
                     }
 
 
@@ -368,7 +407,8 @@ public class JogadorFrame extends JFrame {
             botaoRefazer.setEnabled(true);
 
             btnEnviar.setEnabled(false);
-            txtFieldEnviarMsg.setEnabled(false);
+            txtFieldEnviarMsg.setEnabled(true);
+            txtFieldEnviarMsg.setEditable(false);
         }
         else {
             this.paint.removeMouseListener(mouseInput);
@@ -383,6 +423,7 @@ public class JogadorFrame extends JFrame {
             botaoRefazer.setEnabled(false);
 
             txtFieldEnviarMsg.setEnabled(true);
+            txtFieldEnviarMsg.setEditable(true);
             btnEnviar.setEnabled(true);
         }
     }
