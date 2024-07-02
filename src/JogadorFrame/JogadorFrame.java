@@ -36,6 +36,7 @@ public class JogadorFrame extends JFrame {
     private JButton botaoDesfazer;
     private JButton botaoLimpar;
     private JTextArea txtAreaChutes;
+    private JButton btnRecomecar;
     private PaintContainer paintContainer;
 
     private Mensagem mensagem;
@@ -70,6 +71,37 @@ public class JogadorFrame extends JFrame {
     public JogadorFrame() {
 
         btnConectar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                nomeUsuario = txtFieldNomeJogador.getText();
+
+                if(!nomeUsuario.isBlank()){
+
+                    mensagem = new Mensagem();
+
+                    mensagem.setId(nomeUsuario);
+                    mensagem.setAcao(Mensagem.Acao.CONECTAR);
+
+                    if(socket == null || socket.isClosed()) {
+
+                        service = new ClienteService();
+                        socket = service.connect(host, porta);
+
+                        new Thread(new ListenerSocket(socket)).start();
+                    }
+
+                    System.out.println("Solicitando conexão");
+                    service.send(mensagem);
+                }
+                else{
+
+                    JOptionPane.showMessageDialog(JogadorFrame.this,"Por favor, digite um nome!");
+                }
+
+            }
+        });
+        btnRecomecar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
