@@ -80,6 +80,8 @@ public class ServidorService {
                         transmitirDesenho(mensagem);
                     } else if (acao == Mensagem.Acao.CHUTE) {
                         verificarChute(mensagem);
+                    } else if (acao == Acao.REC0MECAR) {
+                        comecarJogo();
                     }
                 }
 
@@ -107,20 +109,24 @@ public class ServidorService {
                     .forEach(perdedor ->
                             sendMessage(Acao.PERDEU, mensagem.getConteudo(), perdedor, idJogador, null)
                     );
+            sendMessage(Acao.DESENHO_ADIVINHADO, mensagem.getConteudo(), lobby.desenhistaId, idJogador, null);
         }
     }
 
     private void desconectar(Mensagem mensagem) throws IOException {
         System.out.printf("Jogador %s desconectado\n", mensagem.getId());
-        var jogadorRemovido = this.lobby.jogadores.remove(mensagem.getId());
-
         sendMessage(Acao.DESCONECTAR, "Você foi desconectado\n", mensagem.getId()); //envia a desconexão
+        var jogadorRemovido = this.lobby.jogadores.remove(mensagem.getId());
         jogadorRemovido.close();
+
         if (this.lobby.desenhistaId != null && this.lobby.desenhistaId.equals(mensagem.getId())) {
             System.out.println("Desenhista saiu\n");
             this.lobby.desenhistaId = null;
-            comecarJogo();
+            lobby.jogadores.keySet().forEach(idJogador ->
+                    sendMessage(Acao.DESENHISTA_SAIU, "O desenhista se desconectou.", idJogador)
+            );
         }
+
     }
 
     //responde a uma solicitação de conexão

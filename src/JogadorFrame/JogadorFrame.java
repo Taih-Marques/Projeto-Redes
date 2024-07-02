@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 public class JogadorFrame extends JFrame {
     private JPanel barraInferior;
@@ -55,8 +56,8 @@ public class JogadorFrame extends JFrame {
     private final MouseInput mouseInput;
 
     private void createUIComponents() {
-       this.paint = new Paint(new JLabel());
-       this.paint.setPreferredSize(new Dimension(1280, 600));
+        this.paint = new Paint(new JLabel());
+        this.paint.setPreferredSize(new Dimension(1280, 600));
     }
 
     public JFrame rodar() {
@@ -76,14 +77,14 @@ public class JogadorFrame extends JFrame {
 
                 nomeUsuario = txtFieldNomeJogador.getText();
 
-                if(!nomeUsuario.isBlank()){
+                if (!nomeUsuario.isBlank()) {
 
                     mensagem = new Mensagem();
 
                     mensagem.setId(nomeUsuario);
                     mensagem.setAcao(Mensagem.Acao.CONECTAR);
 
-                    if(socket == null || socket.isClosed()) {
+                    if (socket == null || socket.isClosed()) {
 
                         service = new ClienteService();
                         socket = service.connect(host, porta);
@@ -93,10 +94,9 @@ public class JogadorFrame extends JFrame {
 
                     System.out.println("Solicitando conexão");
                     service.send(mensagem);
-                }
-                else{
+                } else {
 
-                    JOptionPane.showMessageDialog(JogadorFrame.this,"Por favor, digite um nome!");
+                    JOptionPane.showMessageDialog(JogadorFrame.this, "Por favor, digite um nome!");
                 }
 
             }
@@ -105,30 +105,14 @@ public class JogadorFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                nomeUsuario = txtFieldNomeJogador.getText();
 
-                if(!nomeUsuario.isBlank()){
+                mensagem = new Mensagem();
 
-                    mensagem = new Mensagem();
+                mensagem.setId(nomeUsuario);
+                mensagem.setAcao(Mensagem.Acao.REC0MECAR);
 
-                    mensagem.setId(nomeUsuario);
-                    mensagem.setAcao(Mensagem.Acao.CONECTAR);
-
-                    if(socket == null || socket.isClosed()) {
-
-                        service = new ClienteService();
-                        socket = service.connect(host, porta);
-
-                        new Thread(new ListenerSocket(socket)).start();
-                    }
-
-                    System.out.println("Solicitando conexão");
-                    service.send(mensagem);
-                }
-                else{
-
-                    JOptionPane.showMessageDialog(JogadorFrame.this,"Por favor, digite um nome!");
-                }
+                System.out.println("Solicitando recomeçar jogo");
+                service.send(mensagem);
 
             }
         });
@@ -136,7 +120,7 @@ public class JogadorFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-               mensagem = new Mensagem();
+                mensagem = new Mensagem();
                 System.out.println("Solicitando desconexão");
                 mensagem.setAcao(Mensagem.Acao.DESCONECTAR); //solicita a desconexão com o servidor;
                 mensagem.setId(nomeUsuario);
@@ -152,7 +136,7 @@ public class JogadorFrame extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent e) {
 
-                if(e.getStateChange() == ItemEvent.SELECTED){
+                if (e.getStateChange() == ItemEvent.SELECTED) {
 
                     paint.setTipoForma(tiposFormas[comboFormasDisponveis.getSelectedIndex()]);
                 }
@@ -169,7 +153,7 @@ public class JogadorFrame extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent e) {
 
-                if(e.getStateChange() == ItemEvent.SELECTED && preencher){
+                if (e.getStateChange() == ItemEvent.SELECTED && preencher) {
                     paint.setPreenchimento(cores[comboCoresPreenchimento.getSelectedIndex()]);
                 }
 
@@ -180,10 +164,10 @@ public class JogadorFrame extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent e) {
 
-                preencher =! preencher;
+                preencher = !preencher;
 
                 paint.setPreenchimento(null);
-                if(preencher){
+                if (preencher) {
                     paint.setPreenchimento(cores[comboCoresPreenchimento.getSelectedIndex()]);
                 }
             }
@@ -221,7 +205,7 @@ public class JogadorFrame extends JFrame {
 
                 String chute = txtFieldEnviarMsg.getText();
 
-                if(!chute.isBlank()){
+                if (!chute.isBlank()) {
 
                     System.out.println(chute);
 
@@ -259,16 +243,17 @@ public class JogadorFrame extends JFrame {
 
             Mensagem mensagem;
 
-            while (true){
+            while (true) {
 
                 try {
 
-                    if(socket.isClosed()) break;
-                    if((mensagem = (Mensagem) input.readObject()) == null) break;
+                    if (socket.isClosed()) break;
+                    if ((mensagem = (Mensagem) input.readObject()) == null) break;
 
                     Mensagem.Acao acao = mensagem.getAcao();
+                    btnRecomecar.setEnabled(false);
 
-                    if(acao == Mensagem.Acao.CONECTAR){
+                    if (acao == Mensagem.Acao.CONECTAR) {
 
                         System.out.println("Conectado");
                         connected(mensagem);
@@ -278,8 +263,7 @@ public class JogadorFrame extends JFrame {
                         disconectado(mensagem); //foi desconectado
                         socket.close();
 
-                    }
-                    else if(acao == Mensagem.Acao.RECUSADO){
+                    } else if (acao == Mensagem.Acao.RECUSADO) {
 
                         System.out.println("Recusado");
                         txtFieldReceber.setText(mensagem.getConteudo().concat("\n"));
@@ -288,17 +272,14 @@ public class JogadorFrame extends JFrame {
                         System.out.println("Jogo iniciado");
                         JogadorFrame.this.papel = acao;
                         desenhando(mensagem);
-                    }
-                    else if (acao == Mensagem.Acao.ROLE_ADIVINHADOR){
+                    } else if (acao == Mensagem.Acao.ROLE_ADIVINHADOR) {
 
                         System.out.println("Jogo iniciado");
                         JogadorFrame.this.papel = acao;
                         advinhando(mensagem);
-                    }
+                    } else if (acao == Mensagem.Acao.DESENHO) {
 
-                    else if(acao == Mensagem.Acao.DESENHO){
-
-                      //  mensagem.getDesenhavel().forEach(System.out::println);
+                        //  mensagem.getDesenhavel().forEach(System.out::println);
 
                         //(ArrayList<Desenhavel>) Arrays.asList(mensagem.getDesenhavel())
                         paint.setFormasDesenhadas(new ArrayList<>(Arrays.asList(mensagem.getDesenhavel())));
@@ -310,30 +291,28 @@ public class JogadorFrame extends JFrame {
 
                         txtAreaChutes.append(String.format("%s chutou: %s\n", mensagem.getId(), mensagem.getConteudo()));
 
-                        System.out.println("chute: "+mensagem.getConteudo());
+                        System.out.println("chute: " + mensagem.getConteudo());
 
-                    }
-                    else{
-
-                        if (acao == Mensagem.Acao.GANHOU) {
-
+                    } else if(acao == Mensagem.Acao.DESENHISTA_SAIU) {
+                        btnRecomecar.setEnabled(true);
+                        txtFieldReceber.setText(mensagem.getConteudo());
+                    } else {
+                        desativarEntradas();
+                        btnRecomecar.setEnabled(true);
+                        if (acao == Mensagem.Acao.DESENHO_ADIVINHADO) {
+                            txtAreaChutes.append(String.format("%s acertou seu desenho!\n", mensagem.getId()));
+                            exibirAlertaFimDeJogo("Você venceu");
+                        } else {
                             txtAreaChutes.append(String.format("%s acertou! A resposta era %s\n", mensagem.getId(), mensagem.getConteudo()));
-                            JOptionPane.showMessageDialog(JogadorFrame.this, "Parabéns, você venceu!");
 
-                        } else if (acao == Mensagem.Acao.PERDEU) {
-
-                            txtAreaChutes.append(String.format("%s acertou! A resposta era %s\n", mensagem.getId(), mensagem.getConteudo()));
-                            JOptionPane.showMessageDialog(JogadorFrame.this, "Ops, não foi dessa vez");
+                            var textos = Map.of(
+                                    Mensagem.Acao.GANHOU, "Parabéns, você venceu!",
+                                    Mensagem.Acao.PERDEU, "Ops, não foi dessa vez"
+                            );
+                            var textoPopup = textos.get(acao);
+                            exibirAlertaFimDeJogo(textoPopup);
                         }
-
-
-                        mensagem = new Mensagem();
-                        System.out.println("Solicitando desconexão");
-                        mensagem.setAcao(Mensagem.Acao.DESCONECTAR); //solicita a desconexão com o servidor;
-                        mensagem.setId(nomeUsuario);
-                        service.send(mensagem);//envia a solicitação
                     }
-
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -342,6 +321,10 @@ public class JogadorFrame extends JFrame {
                 }
             }
 
+        }
+
+        private void exibirAlertaFimDeJogo(String textoAlerta) {
+            JOptionPane.showMessageDialog(JogadorFrame.this, textoAlerta);
         }
     }
 
@@ -430,22 +413,22 @@ public class JogadorFrame extends JFrame {
         btnConectar.setEnabled(true);
         btnSair.setEnabled(false);
         txtFieldNomeJogador.setEnabled(true);
-
+        btnRecomecar.setEnabled(false);
         desativarEntradas();
 
 
     }
 
     private void connected(Mensagem mensagem) {
-
-            btnConectar.setEnabled(false);
-            btnSair.setEnabled(true);
-            txtFieldNomeJogador.setEnabled(false);
-            txtFieldReceber.setText(mensagem.getConteudo());
+        btnRecomecar.setEnabled(false);
+        btnConectar.setEnabled(false);
+        btnSair.setEnabled(true);
+        txtFieldNomeJogador.setEnabled(false);
+        txtFieldReceber.setText(mensagem.getConteudo());
 
     }
 
-    private  void  desativarEntradas(){
+    private void desativarEntradas() {
 
         this.paint.removeMouseListener(mouseInput);
         this.paint.removeMouseMotionListener(mouseInput);
@@ -469,12 +452,14 @@ public class JogadorFrame extends JFrame {
         botaoDesfazer.setEnabled(false);
         botaoLimpar.setEnabled(false);
         botaoRefazer.setEnabled(false);
+        btnRecomecar.setEnabled(false);
+
 
     }
 
-    private void ativarDesenho(Boolean ativar){
+    private void ativarDesenho(Boolean ativar) {
 
-        if(ativar){
+        if (ativar) {
 
             this.paint.addMouseListener(mouseInput);
             this.paint.addMouseMotionListener(mouseInput);
@@ -490,8 +475,7 @@ public class JogadorFrame extends JFrame {
             btnEnviar.setEnabled(false);
             txtFieldEnviarMsg.setEnabled(true);
             txtFieldEnviarMsg.setEditable(false);
-        }
-        else {
+        } else {
             this.paint.removeMouseListener(mouseInput);
             this.paint.removeMouseMotionListener(mouseInput);
 

@@ -77,6 +77,7 @@ public class Mensagem implements Serializable {
         RECUSADO,
         DESCONECTAR,
         ROLE_DESENHISTA,
-        ROLE_ADIVINHADOR
+        REC0MECAR,
+        DESENHO_ADIVINHADO, DESENHISTA_SAIU, ROLE_ADIVINHADOR
     }
 }
