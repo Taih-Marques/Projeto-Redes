@@ -2,6 +2,7 @@ package Desenho;
 
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,15 +28,15 @@ public class PaintContainer extends JPanel {
 	private final JComboBox<String> coresMenu, coresPreenchimentoMenu, formas;
 	private final JRadioButton removerPreenchimento;
 	private boolean preencher = false;
+	private final Paint tela;
 
-
-	public PaintContainer() {
+	public PaintContainer(MouseAdapter mouseInput) {
 
 		JLabel status = new JLabel();
 
 		removerPreenchimento = new JRadioButton("Remover preenchimento", true); //botões para remover o preenchimento da figura
 
-		Paint tela = new Paint(status);//instancia a tela de desenho
+		this.tela = new Paint(status);//instancia a tela de desenho
 		tela.setPreferredSize(new Dimension(1280, 600));
 
 		add(tela, BorderLayout.CENTER);//posiciona a tela no centro da janela
@@ -122,6 +123,11 @@ public class PaintContainer extends JPanel {
 		});
 
 
+	}
+
+	public Paint getPaint(){
+
+		return this.tela;
 	}
 
 	@Override

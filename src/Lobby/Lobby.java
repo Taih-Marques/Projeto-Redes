@@ -4,7 +4,7 @@ import java.io.ObjectOutputStream;
 import java.util.*;
 
 public class Lobby {
-    private final List<String> desenhos = List.of("Gato", "Cachorro", "Cadeira", "Tartaruga");
+    private List<String> desenhos = List.of("Gato", "Cachorro", "Cadeira", "Tartaruga");
     public Map<String, ObjectOutputStream> jogadores = new Hashtable<>();
 
     public String desenhistaId;
@@ -30,7 +30,7 @@ public class Lobby {
         desenhoAtual = desenhos.get(indiceAleatorio);
     }
 
-    public String getIDJogadorAleatorio() {
+    public  String getIDJogadorAleatorio() {
         Random random = new Random();
         int indiceAleatorio = random.nextInt(jogadores.size());
         return jogadores.keySet().stream().toList().get(indiceAleatorio);
