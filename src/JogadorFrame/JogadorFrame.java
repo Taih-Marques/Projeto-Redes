@@ -75,6 +75,23 @@ public class JogadorFrame extends JFrame {
 
             }
         });
+<<<<<<< Updated upstream
+=======
+        btnRecomecar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                mensagem = new Mensagem();
+
+                mensagem.setId(nomeUsuario);
+                mensagem.setAcao(Mensagem.Acao.REC0MECAR);
+
+                System.out.println("Solicitando recomeçar jogo");
+                service.send(mensagem);
+
+            }
+        });
+>>>>>>> Stashed changes
         btnSair.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,6 +105,11 @@ public class JogadorFrame extends JFrame {
 
             }
         });
+    }
+
+    private void apagarFrame() {
+        JogadorFrame.this.paint.flushFormasDesenhadas();
+        JogadorFrame.this.paint.repaint();
     }
 
     private class ListenerSocket implements Runnable {
@@ -132,12 +154,17 @@ public class JogadorFrame extends JFrame {
                         System.out.println("Recusado");
                         txtFieldReceber.setText(mensagem.getConteudo().concat("\n"));
                     } else if (acao == Mensagem.Acao.ROLE_DESENHISTA) {
-
+                        apagarFrame();
                         System.out.println("Jogo iniciado");
                         desenhando(mensagem);
+<<<<<<< Updated upstream
                     }
                     else if (acao == Mensagem.Acao.ROLE_ADIVINHADOR){
 
+=======
+                    } else if (acao == Mensagem.Acao.ROLE_ADIVINHADOR) {
+                        apagarFrame();
+>>>>>>> Stashed changes
                         System.out.println("Jogo iniciado");
                         advinhando(mensagem);
                     }

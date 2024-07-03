@@ -136,7 +136,25 @@ public class Paint extends JPanel{
 
 		return this.formasDesenhadas;
 	}
+<<<<<<< Updated upstream
 	
+=======
+
+	//deleta tudo da memória
+	public void flushFormasDesenhadas(){
+
+		this.formasDesenhadas.clear();
+		quantasFormas = -1;
+	}
+
+	public void setFormasDesenhadas(ArrayList<Desenhavel> desenhadas){
+
+		this.formasDesenhadas = desenhadas;
+		quantasFormas = this.formasDesenhadas.size();
+
+	}
+
+>>>>>>> Stashed changes
 	/**
 	 * pinta todos os desenhos na tela
 	 */
