@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 
 public class JogadorFrame extends JFrame {
     private JPanel barraInferior;
@@ -60,16 +61,19 @@ public class JogadorFrame extends JFrame {
         this.paint.setPreferredSize(new Dimension(1280, 600));
     }
 
-    public JFrame rodar() {
+    public static JFrame rodar(String host) {
+
         JFrame frame = new JFrame("JogadorFrame");
-        frame.setContentPane(new JogadorFrame().principal);
+        frame.setContentPane(new JogadorFrame(host).principal);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
 
         return frame;
     }
 
-    public JogadorFrame() {
+    public JogadorFrame(String host) {
+
+        this.host = host;
 
         btnConectar.addActionListener(new ActionListener() {
             @Override
